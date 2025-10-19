@@ -1,0 +1,277 @@
+{
+  "name": "Temp 130",
+  "customCoordinates": [
+    {
+      "lat": 46.46129288866074,
+      "lng": 17.56028663540666,
+      "heading": 325.0646064489688,
+      "pitch": -10.770786342261076,
+      "zoom": 0,
+      "panoId": "n2EcNOooDLJozgugeW_K0w",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "HU",
+          "Medium"
+        ],
+        "panoDate": "2012-01"
+      }
+    },
+    {
+      "lat": 46.7687152797918,
+      "lng": 21.11969877841792,
+      "heading": 157.78677211642793,
+      "pitch": -2.3508046660676456,
+      "zoom": 0,
+      "panoId": "5rUQZx70LrcK713jT0cnXg",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "HU",
+          "Medium"
+        ],
+        "panoDate": "2011-11"
+      }
+    },
+    {
+      "lat": 47.93200240775299,
+      "lng": 19.7455127273762,
+      "heading": 102.82009394912382,
+      "pitch": -0.5114963560117758,
+      "zoom": 0,
+      "panoId": "jOChp6z2DXwMD-xUuxqyeg",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "HU",
+          "Medium"
+        ],
+        "panoDate": "2024-08"
+      }
+    },
+    {
+      "lat": 46.982013106629545,
+      "lng": 18.934379837462068,
+      "heading": 130.67028439611525,
+      "pitch": -12.275297743983458,
+      "zoom": 0,
+      "panoId": "eiTIsmeQc2C5DV1Y_aK5hQ",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "HU",
+          "Medium"
+        ],
+        "panoDate": "2011-11"
+      }
+    },
+    {
+      "lat": 48.28381359514752,
+      "lng": 7.3925126732224475,
+      "heading": 329.293582245784,
+      "pitch": -6.769109091676626,
+      "zoom": 0,
+      "panoId": "XNprc88Wh63UVeeiJYmlNA",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "FR",
+          "Expert"
+        ],
+        "panoDate": "2022-11"
+      }
+    },
+    {
+      "lat": 43.82867813373453,
+      "lng": 5.162963146907333,
+      "heading": 85.25805626314636,
+      "pitch": -13.689757171614815,
+      "zoom": 0,
+      "panoId": "xXRKSHmuclWiatLTzZQVHA",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "FR",
+          "Expert"
+        ],
+        "panoDate": "2019-10"
+      }
+    },
+    {
+      "lat": 45.51577041365201,
+      "lng": 1.8202842145454343,
+      "heading": 122.78670451050222,
+      "pitch": -6.243566781250806,
+      "zoom": 0,
+      "panoId": "WOR6MbN4L-q4FH1T7f9-Dw",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "FR",
+          "Expert"
+        ],
+        "panoDate": "2024-10"
+      }
+    },
+    {
+      "lat": -33.09982568135105,
+      "lng": -71.66672014137932,
+      "heading": 210.64,
+      "pitch": 0,
+      "zoom": 0,
+      "panoId": "aZxi5g6Ox-tAF01zqsPkSg",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "CL",
+          "Hard"
+        ],
+        "panoDate": "2023-05"
+      }
+    },
+    {
+      "lat": -38.566321409701395,
+      "lng": -72.57230877223391,
+      "heading": 156.85,
+      "pitch": 1.480000000000004,
+      "zoom": 0,
+      "panoId": "l9iWhKOs6U4sOIAgzUCq8g",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "CL",
+          "Hard"
+        ],
+        "panoDate": "2022-01"
+      }
+    },
+    {
+      "lat": -42.247547163799936,
+      "lng": -73.37297859834825,
+      "heading": 209.18906884314143,
+      "pitch": -0.21688134004581627,
+      "zoom": 0,
+      "panoId": "ZInU9j_-sHVRVBYRQseYww",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "CL",
+          "Hard"
+        ],
+        "panoDate": "2024-12"
+      }
+    },
+    {
+      "lat": -22.547722811253365,
+      "lng": -68.84454302529768,
+      "heading": 72.25355521143733,
+      "pitch": 5.598529460725231,
+      "zoom": 0,
+      "panoId": "JvdRyhC7EvZtN4URuCv9Mg",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "CL",
+          "Hard"
+        ],
+        "panoDate": "2025-06"
+      }
+    },
+    {
+      "lat": -34.82967081221963,
+      "lng": 173.1296839755236,
+      "heading": 104.5993616487584,
+      "pitch": 3.0759226529542474,
+      "zoom": 0,
+      "panoId": "Au4Azju5OvewDg-6HdZJrQ",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "NZ",
+          "Easy"
+        ],
+        "panoDate": "2010-02"
+      }
+    },
+    {
+      "lat": -39.0267518,
+      "lng": 177.3828282,
+      "heading": 223.15069055269498,
+      "pitch": -4.155895171176596,
+      "zoom": 0,
+      "panoId": "c6fYqqidR_Zb70V8g6aE0w",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "NZ",
+          "Easy"
+        ],
+        "panoDate": "2019-11"
+      }
+    },
+    {
+      "lat": -44.08513167441159,
+      "lng": 170.81962895520232,
+      "heading": 316.5481625791466,
+      "pitch": -2.263477115145534,
+      "zoom": 0,
+      "panoId": "D36VsucYVMma0QLd2gXDSA",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "NZ",
+          "Easy"
+        ],
+        "panoDate": "2025-07"
+      }
+    },
+    {
+      "lat": -46.18494786292791,
+      "lng": 168.87584517890778,
+      "heading": 303.2215344998904,
+      "pitch": -8.793951434322963,
+      "zoom": 0,
+      "panoId": "Y_HgCgpBrRYk1kcr9cKI5w",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "NZ",
+          "Easy"
+        ],
+        "panoDate": "2024-10"
+      }
+    },
+    {
+      "lat": 48.57719571746317,
+      "lng": -4.031056555854791,
+      "heading": 236.91618012630454,
+      "pitch": -3.289538325659663,
+      "zoom": 0,
+      "panoId": "uenHH-aJo5Sg7RkxD_DLEA",
+      "countryCode": null,
+      "stateCode": null,
+      "extra": {
+        "tags": [
+          "FR",
+          "Expert"
+        ],
+        "panoDate": "2012-08"
+      }
+    }
+  ]
+}

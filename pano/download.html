@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>street view downloader / embedder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { color-scheme: light dark; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+    }
+    #viewer { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      background: #000; 
+      z-index: 1;
+    }
+    #pano { 
+      position: absolute; 
+      inset: 0; 
+      width: 100%; 
+      height: 100%; 
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.8);
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    .panel { 
+      padding: 16px; 
+      border: 1px solid color-mix(in oklab, CanvasText 20%, Canvas 80%);
+      border-radius: 8px; 
+      background: Canvas; 
+      color: CanvasText; 
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    input, textarea {
+      background: Field; 
+      color: FieldText;
+      border: 1px solid color-mix(in oklab, CanvasText 20%, Canvas 80%);
+      width: 100%;
+    }
+    .error { background: #fee; color: #900; border: 1px solid #fbb; padding: 12px; white-space: pre-wrap; }
+    .warn  { background: #fffae6; color: #6b5300; border: 1px solid #ffe08a; padding: 8px; margin-top: 8px; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<div id="viewer">
+  <!-- populated dynamically -->
+</div>
+
+<div id="overlay" class="overlay">
+  <div class="panel">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Street View Loader</h3>
+    <div id="errors" class="error hidden"></div>
+    <div id="warnings" class="warn hidden"></div>
+    
+    <div style="margin-bottom: 8px;">
+      <label for="json-input" style="display: block; margin-bottom: 4px; font-weight: 600;">Paste JSON data:</label>
+      <textarea id="json-input" placeholder='{"lat":43.085007775031706,"lng":25.648870069200193,"heading":178.24690015801346,"pitch":1.103292016226959,"zoom":0,"panoId":"GTu_CndKp_Itd-4eHHO9vg","countryCode":null,"stateCode":null,"extra":{"tags":["bulgaria","Expert"],"panoDate":"2022-11"}}' style="height: 80px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; font-size: 12px; padding: 8px; border-radius: 4px; resize: vertical;"></textarea>
+    </div>
+    <div style="margin-bottom: 8px;">
+      <label for="api-key-input" style="display: block; margin-bottom: 4px; font-weight: 600;">API Key:</label>
+      <input id="api-key-input" type="text" placeholder="YOUR_GOOGLE_MAPS_API_KEY" style="padding: 8px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;">
+    </div>
+    <button id="load-data-btn" style="padding: 8px 16px; background: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; width: 100%;">Load Street View</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  console.log("Script starting...");
+  const q = new URLSearchParams(location.search);
+
+  // helpers
+  const toNum = (v) => v === null ? null : (v === "" ? null : Number(v));
+  const isNum = (x) => Number.isFinite(x);
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+  // read params
+  const params = {
+    mode: (q.get("mode") || "embed").toLowerCase(),               // embed | js | static
+    key: q.get("key"),
+    pano: q.get("pano"),
+    lat: toNum(q.get("lat")),
+    lng: toNum(q.get("lng")),
+    heading: toNum(q.get("heading")),
+    pitch: toNum(q.get("pitch")),
+    fov: toNum(q.get("fov")),
+    zoom: toNum(q.get("zoom")),
+    w: toNum(q.get("w")),
+    h: toNum(q.get("h")),
+    scale: toNum(q.get("scale")),
+    disableUI: (q.get("disableUI") ?? "true").toLowerCase() !== "false",
+  };
+
+  // defaults
+  if (!isNum(params.heading)) params.heading = 0;
+  if (!isNum(params.pitch))   params.pitch   = 0;
+  if (!isNum(params.fov))     params.fov     = 90;
+  if (!isNum(params.w))       params.w       = 1200;
+  if (!isNum(params.h))       params.h       = 800;
+  if (!isNum(params.scale))   params.scale   = 1;
+
+  // validation
+  const errs = [];
+  if (!params.key) errs.push("missing required param: key");
+  if (!params.pano && !(isNum(params.lat) && isNum(params.lng))) {
+    errs.push("provide either pano=PANO_ID or lat & lng numbers");
+  }
+  if (params.mode !== "embed" && params.mode !== "js" && params.mode !== "static") {
+    errs.push(`invalid mode: ${params.mode}`);
+  }
+  if (!isNum(params.heading) || params.heading < -720 || params.heading > 720) {
+    errs.push("heading must be a number (recommended 0..360)");
+  }
+  if (!isNum(params.pitch) || params.pitch < -90 || params.pitch > 90) {
+    errs.push("pitch must be a number in [-90, 90]");
+  }
+  if (!isNum(params.fov) || params.fov <= 0 || params.fov > 120) {
+    errs.push("fov must be a number in (0, 120]");
+  }
+  if (!Number.isInteger(params.w) || params.w <= 0) errs.push("w must be a positive integer");
+  if (!Number.isInteger(params.h) || params.h <= 0) errs.push("h must be a positive integer");
+  if (params.mode === "static" && (params.scale !== 1 && params.scale !== 2)) {
+    errs.push("static: scale must be 1 or 2");
+  }
+
+  const $errors = document.getElementById("errors");
+  const $warnings = document.getElementById("warnings");
+  const $viewer = document.getElementById("viewer");
+
+  if (errs.length) {
+    $errors.textContent = "errors:\n- " + errs.join("\n- ");
+    $errors.classList.remove("hidden");
+    // ensure the paste form works even when params are missing/invalid
+    setupFormHandlers();
+    return;
+  }
+
+  const buildJsScriptUrl = () =>
+    `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(params.key)}&libraries=geometry`;
+
+  // render - using exact same implementation as your working code
+  const panoEl = document.createElement("div");
+  panoEl.id = "pano";
+  panoEl.style.cssText = "position:absolute; inset:0; width:100%; height:100%;";
+    $viewer.innerHTML = "";
+  $viewer.appendChild(panoEl);
+
+  // Helper function to ensure Google Maps JS is loaded (exact copy)
+  async function ensureMapsJS() {
+    if (window.google?.maps?.StreetViewPanorama) {
+      return Promise.resolve();
+    }
+    
+    return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = buildJsScriptUrl();
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  // Main function (exact copy from your working code)
+  async function loadPano() {
+    try {
+      await ensureMapsJS();
+      
+      const opts = {
+        addressControl: false,
+        linksControl: false,
+        clickToGo: false,
+        zoomControl: false,
+        fullscreenControl: false,   // <-- this hides the icon
+        motionTracking: false,
+        motionTrackingControl: false,
+        disableDefaultUI: true      // <-- this also hides controls
+      };
+      
+      if (params.pano) {
+        opts.pano = params.pano;
+      } else {
+        opts.position = { lat: params.lat, lng: params.lng };
+      }
+      
+      const pano = new google.maps.StreetViewPanorama(panoEl, opts);
+      const fixedPov = { heading: params.heading || 0, pitch: params.pitch || 0 };
+      pano.setPov(fixedPov);
+
+      // *** INSERT: force wide view and lock to it ***
+      const fixedZoom = params.zoom || 0;         // wide FOV (~110–120°)
+      pano.setZoom(fixedZoom);
+
+      google.maps.event.addListener(pano, "pov_changed", () => {
+        const p = pano.getPov();
+        if (Math.abs(p.heading - fixedPov.heading) > 0.1 || Math.abs(p.pitch - fixedPov.pitch) > 0.1) {
+          pano.setPov(fixedPov);
+        }
+      });
+      
+      google.maps.event.addListener(pano, "zoom_changed", () => {
+        if (pano.getZoom() !== fixedZoom) {
+          pano.setZoom(fixedZoom);
+        }
+      });
+      
+      google.maps.event.addListener(pano, "position_changed", () => {
+        if (params.pano) {
+          pano.setPano(params.pano);
+        } else {
+          pano.setPosition({ lat: params.lat, lng: params.lng });
+        }
+      });
+      
+      // Block arrow keys and other controls while in pano
+      const blockKeys = (e) => {
+        const keys = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "PageUp", "PageDown", "+", "-", "=", "_"];
+        if (keys.includes(e.key)) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+      window.addEventListener("keydown", blockKeys, { capture: true });
+      
+      // Refresh pano size after entering fullscreen or resizing
+      const refresh = () => {
+        try {
+          google.maps.event.trigger(pano, "resize");
+        } catch (_) {}
+      };
+      setTimeout(refresh, 80);
+      setTimeout(refresh, 200);
+      window.addEventListener("resize", refresh);
+      document.addEventListener("fullscreenchange", refresh, { passive: true });
+      
+      // Hide overlay when pano loads successfully
+      document.getElementById("overlay").classList.add("hidden");
+      
+      // Store the panoId in a global variable for the download script to access
+      window.loadedPanoId = pano.getPano();
+      
+      // Also listen for panorama changes to update the panoId
+      google.maps.event.addListener(pano, "pano_changed", () => {
+        window.loadedPanoId = pano.getPano();
+      });
+      
+      // Listen for status changes to know when panorama is loaded
+      google.maps.event.addListener(pano, "status_changed", () => {
+        const status = pano.getStatus();
+        if (status === google.maps.StreetViewStatus.OK) {
+          window.panoLoaded = true;
+          console.log("Panorama loaded successfully, status:", status);
+        } else {
+          console.warn("Panorama status:", status);
+          if (status === google.maps.StreetViewStatus.ZERO_RESULTS) {
+            console.warn("No Street View imagery found for this location");
+          } else if (status === google.maps.StreetViewStatus.UNKNOWN_ERROR) {
+            console.warn("Unknown error loading Street View");
+          }
+        }
+      });
+    } catch (err) {
+      console.warn("Pano load error:", err);
+      // Set a flag to indicate the panorama failed to load
+      window.panoLoadError = true;
+    }
+  }
+
+  loadPano();
+
+  // Handle data loading form - wait for DOM to be ready
+  function setupFormHandlers() {
+    console.log("Setting up form handlers...");
+    const $jsonInput = document.getElementById("json-input");
+    const $apiKeyInput = document.getElementById("api-key-input");
+    const $loadDataBtn = document.getElementById("load-data-btn");
+
+    console.log("Form elements:", { $jsonInput, $apiKeyInput, $loadDataBtn });
+
+    if (!$jsonInput || !$apiKeyInput || !$loadDataBtn) {
+      console.error("Form elements not found:", { $jsonInput, $apiKeyInput, $loadDataBtn });
+      return;
+    }
+
+    console.log("All form elements found, adding event listener...");
+
+    // Add a simple test first
+    $loadDataBtn.addEventListener("click", () => {
+      console.log("SIMPLE TEST: Button clicked!");
+    });
+
+    // Test if we can add a simple event listener
+    $loadDataBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      console.log("Button clicked");
+      const jsonText = $jsonInput.value.trim();
+      const apiKey = $apiKeyInput.value.trim();
+
+      if (!apiKey) {
+        alert("Please enter an API key");
+        return;
+      }
+
+      if (!jsonText) {
+        alert("Please paste JSON data");
+        return;
+      }
+
+      try {
+      console.log("Processing JSON:", jsonText);
+      // Clean up JSON text (remove trailing comma if present)
+      const cleanedJson = jsonText.replace(/,(\s*[}\]])/g, '$1').replace(/,(\s*$)/g, '');
+      console.log("Cleaned JSON:", cleanedJson);
+        const data = JSON.parse(cleanedJson);
+        console.log("Parsed data:", data);
+
+        // Build URL parameters
+        const urlParams = new URLSearchParams();
+        urlParams.set("key", apiKey);
+
+        // Extract relevant data, ignoring unneeded fields
+        if (data.panoId) {
+          urlParams.set("pano", data.panoId);
+          console.log("Using panoId:", data.panoId);
+        } else if (data.lat !== undefined && data.lng !== undefined) {
+          urlParams.set("lat", data.lat);
+          urlParams.set("lng", data.lng);
+          console.log("Using lat/lng:", data.lat, data.lng);
+        }
+
+        if (data.heading !== undefined) urlParams.set("heading", data.heading);
+        if (data.pitch !== undefined) urlParams.set("pitch", data.pitch);
+        if (data.zoom !== undefined) urlParams.set("zoom", data.zoom);
+        if (data.fov !== undefined) urlParams.set("fov", data.fov);
+
+      // Show overlay and redirect with new parameters
+      document.getElementById("overlay").classList.remove("hidden");
+      const newUrl = `${location.pathname}?${urlParams.toString()}`;
+      console.log("Redirecting to:", newUrl);
+      location.href = newUrl;
+
+      } catch (error) {
+        alert(`Invalid JSON: ${error.message}`);
+      }
+    });
+
+    // Auto-populate form if URL has parameters
+    if (params.key) {
+      $apiKeyInput.value = params.key;
+    }
+    if (params.pano || (isNum(params.lat) && isNum(params.lng))) {
+      const jsonData = {};
+      if (params.pano) jsonData.panoId = params.pano;
+      if (isNum(params.lat) && isNum(params.lng)) {
+        jsonData.lat = params.lat;
+        jsonData.lng = params.lng;
+      }
+      if (isNum(params.heading)) jsonData.heading = params.heading;
+      if (isNum(params.pitch)) jsonData.pitch = params.pitch;
+      if (isNum(params.zoom)) jsonData.zoom = params.zoom;
+      if (isNum(params.fov)) jsonData.fov = params.fov;
+      
+      $jsonInput.value = JSON.stringify(jsonData, null, 2);
+    }
+  }
+
+  // Set up form handlers when DOM is ready
+  console.log("DOM ready state:", document.readyState);
+  if (document.readyState === 'loading') {
+    console.log("DOM still loading, waiting for DOMContentLoaded...");
+    document.addEventListener('DOMContentLoaded', setupFormHandlers);
+  } else {
+    console.log("DOM already loaded, setting up handlers immediately...");
+    setupFormHandlers();
+  }
+})();
+</script>
+</body>
+</html>
+

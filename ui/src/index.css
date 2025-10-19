@@ -1,0 +1,271 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bg: #0f1115;
+    --text: #e7eaf0;
+    --muted: #9aa3b2;
+    --card: #151a24;
+    --border: #222b3a;
+    --accent: #6ea8fe;
+    --accent2: #b8f0ff;
+    --bad: #ff6b6b;
+    --easy: #FACC15;
+    --medium: #14B8A6;
+    --hard: #A855F7;
+    --expert: #EF4444;
+    --header-h: 56px;
+    --page-pad: 10px;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) var(--bg);
+}
+
+/* Custom utility classes */
+.bg-bg { background-color: var(--bg); }
+.bg-card { background-color: var(--card); }
+.bg-accent { background-color: var(--accent); }
+.bg-easy { background-color: var(--easy); }
+.bg-medium { background-color: var(--medium); }
+.bg-hard { background-color: var(--hard); }
+.bg-expert { background-color: var(--expert); }
+.bg-muted { background-color: var(--muted); }
+
+.text-text { color: var(--text); }
+.text-muted { color: var(--muted); }
+.text-accent { color: var(--accent); }
+
+.border-border { border-color: var(--border); }
+
+.h-header { height: var(--header-h); }
+.p-page { padding: var(--page-pad); }
+
+/* Tile styles */
+.tile {
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.tile:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Tile selection styles */
+.tile.selected::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: inset 0 0 0 16px var(--ring-color, #6ea8fe);
+}
+
+.tile.g1 { --ring-color: #FACC15; }  /* easy */
+.tile.g2 { --ring-color: #14B8A6; }  /* medium */
+.tile.g3 { --ring-color: #A855F7; }  /* hard */
+.tile.g4 { --ring-color: #EF4444; }  /* expert */
+.tile.g-solved { --ring-color: #6B7280; }  /* solved - muted gray */
+.tile.locked {
+  cursor: default;
+  filter: saturate(.9) brightness(.95);
+}
+
+/* Message scale animation */
+@keyframes messageScale {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Shake animation */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  16.67% {
+    transform: translateX(-2px);
+  }
+  33.33% {
+    transform: translateX(2px);
+  }
+  50% {
+    transform: translateX(-2px);
+  }
+  66.67% {
+    transform: translateX(2px);
+  }
+  83.33% {
+    transform: translateX(-2px);
+  }
+}
+
+.tile-shake {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Default button styling */
+.default-btn {
+  padding: 0.25rem .85rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border);
+  background: #141a25;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.default-btn:hover {
+  background: #1a2332;
+}
+
+/* Completed puzzle button */
+.completed-btn {
+  padding: 0.25rem .85rem;
+  border-radius: 0.25rem;
+  border: 1px solid #22c55e;
+  background: #22c55e;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.completed-btn:hover {
+  border-color: white;
+}
+
+/* Attempted puzzle button */
+.attempted-btn {
+  padding: 0.25rem .85rem;
+  border-radius: 0.25rem;
+  border: 1px solid #eab308;
+  background: #eab308;
+  color: black;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.attempted-btn:hover {
+  border-color: white;
+}
+
+/* Submit button styling */
+.submit-btn {
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color: #0b0b0b;
+  border: none;
+  padding: 0.25rem .85rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.submit-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* Custom scrollbar styles */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--bg);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: var(--bg) !important;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--border) !important;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--muted) !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:active {
+  background: var(--text) !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-corner {
+  background: var(--bg) !important;
+}
+
+/* Global scrollbar styles for all elements */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--bg);
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg) !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--border) !important;
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted) !important;
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--bg) !important;
+}
+
+/* Specific dropdown scrollbar overrides */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--bg) !important;
+  border-radius: 3px !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--border) !important;
+  border-radius: 3px !important;
+  border: none !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: var(--muted) !important;
+}
+
+.overflow-y-auto::-webkit-scrollbar-corner {
+  background: var(--bg) !important;
+}
